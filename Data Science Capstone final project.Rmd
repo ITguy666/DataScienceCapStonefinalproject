@@ -1,0 +1,51 @@
+---
+title: "Data Science Capstone Final Project_Next Word Predictor"
+author: "ITguy666"
+date: "2026-10-04"
+output: ioslides_presentation
+---
+## Algorithm & Model Preprocessing
+The underlying predictive model was constructed using the HC Corpora dataset (Blogs, News, and Twitter entries).
+
+1. **Text Preprocessing Pipeline**:
+   * Lowercased all text and stripped punctuation, numbers, and extra whitespaces.
+   * Cleaned out profanity using custom lexical filters.
+
+2. **N-Gram Tokenization & Back-off Strategy**:
+   * Built frequency tables for Unigrams, Bigrams, and Trigrams.
+   * Implemented the **Stupid Back-off Algorithm**:
+
+$$
+S(w_i \mid w_{i-k+1}^{i-1}) = \begin{cases} \frac{f(w_{i-k+1}^i)}{f(w_{i-k+1}^{i-1})} & \text{if } f(w_{i-k+1}^i) > 0 \\ \alpha \cdot S(w_i \mid w_{i-k+2}^{i-1}) & \text{otherwise} \end{cases}
+$$
+
+   * Uses an absolute back-off penalty constant ($\alpha = 0.4$).
+
+## Memory & Performance Optimization
+To deploy the model smoothly within free-tier server resource limits (e.g., **shinyapps.io**), several optimization steps were applied:
+
+| Optimization Technique | Implementation | Outcome |
+| :--- | :--- | :--- |
+| **Frequency Pruning** | Filtered out N-grams with frequency $N = 1$ | Reduced table size by **~80%** |
+| **Keyed Binary Lookups** | Used R `data.table::setkey()` | Lookups executed in $O(\log N)$ time |
+| **Serialized Compression** | Compressed tables saved as binary `.rds` | Disk footprint reduced to **< 50 MB** |
+| **Global Memory Sharing** | Objects loaded once in `app.R` root level | Reduced multi-user memory consumption |
+
+## Interactive R Shiny Web Application
+
+The companion web application provides an intuitive user interface built using modern R Shiny layouts.
+
+### User Experience Workflow
+1. **Text Input**: The user enters a phrase or sentence into the main text box. User can also choose number of choices.
+2. **Reactive Execution**: The server cleans the input text and extracts trailing words.
+3. **Lookup & Prediction**: The algorithm searches 3-grams down to 1-grams to find the best candidate.
+4. **Output Display**: Displays the top predicted word along with the source back-off level used.
+
+## Summary & Deliverables
+
+### Project Links
+* **Shiny Application**: [https://itguy666.shinyapps.io/DataScienceCourseCapstone]
+* **Source Code Repository**: [https://github.com/ITguy666/DataScienceCapStonefinalproject]
+* **Milestone Exploratory Data Analysis**: [https://rpubs.com/ITguy666/DataScienceCapStonefinalproject]
+
+*Thank you for evaluating this Capstone Project!*
